@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Scout | Embodied AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #050507;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --accent-primary: #4facfe;
+            --accent-secondary: #00f2fe;
+            --gemini-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --font-main: 'Inter', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Background Effects --- */
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(79, 172, 254, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+            animation: pulse 10s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+            100% { opacity: 0.8; transform: translateX(-50%) scale(1.2); }
+        }
+
+        /* --- Typography --- */
+        h1, h2, h3 {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .gradient-text {
+            background: var(--gemini-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i { color: var(--accent-secondary); }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--text-main); }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-content h1 {
+            font-size: 5rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .cta-button {
+            padding: 15px 40px;
+            background: var(--gemini-gradient);
+            color: #000;
+            font-weight: 700;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+
+        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3); }
+
+        /* --- Terminal Simulation (MVP Showcase) --- */
+        .simulation {
+            margin: 100px 0;
+        }
+
+        .terminal-window {
+            background: #0f0f12;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            font-family: var(--font-code);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .terminal-header {
+            background: #1a1a1e;
+            padding: 10px 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-body {
+            padding: 20px;
+            color: #d4d4d4;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+
+        .log-entry { margin-bottom: 10px; border-left: 2px solid transparent; padding-left: 10px; }
+        .log-entry.gemini { border-left-color: var(--accent-primary); color: #a5d6ff; }
+        .log-entry.rover { border-left-color: #27c93f; color: #a5ffaa; }
+        .timestamp { color: #555; margin-right: 10px; }
+
+        /* --- Features (USP) --- */
+        .features {
+            padding: 100px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-secondary);
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            background: rgba(79, 172, 254, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+        }
+
+        /* --- Tech Stack --- */
+        .tech-stack {
+            padding: 50px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .tech-icons {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tech-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+
+        .tech-item i { font-size: 2rem; color: var(--text-main); }
+
+        /* --- Footer --- */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 50px;
+        }
+
+        /* --- Mobile --- */
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 3rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fa-solid fa-robot"></i> Gemini Scout
+                </div>
+                <div class="nav-links">
+                    <a href="#how-it-works">How It Works</a>
+                    <a href="#features">Features</a>
+                    <a href="#tech">Tech Stack</a>
+                    <a href="https://github.com/vikrantkulkarni07/Physical-World-Gemini-Scout" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; background: rgba(255,255,255,0.1); color: white;">GitHub</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>We Gave <span class="gradient-text">Gemini</span><br>A Physical Body.</h1>
+            <p>An autonomous rover powered entirely by <strong>Gemini 3 Flash</strong>. No custom models. No LIDAR. Just pure multimodal reasoning.</p>
+            <a href="#demo" class="cta-button">
+                <i class="fa-solid fa-play"></i> Watch Demo
+            </a>
+        </div>
+    </section>
+
+    <section class="simulation" id="demo">
+        <div class="container">
+            <div class="section-header">
+                <h2><span class="gradient-text">Live Reasoning Core</span></h2>
+                <p style="color: var(--text-muted);">See what the robot thinks in real-time.</p>
+            </div>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <div class="dot red"></div>
+                    <div class="dot yellow"></div>
+                    <div class="dot green"></div>
+                    <span style="margin-left: 10px; color: #777; font-size: 0.8rem;">root@gemini-scout:~/logs</span>
+                </div>
+                <div class="terminal-body" id="terminal-logs">
+                    </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why It Wins Hackathons</h2>
+                <p style="color: var(--text-muted);">Moving beyond chatbots to real-world agency.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fa-solid fa-brain"></i></div>
+                    <h3>Semantic Reasoning</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">Standard robots see "Object #402". Scout sees "A fragile glass vase" and knows to drive carefully around it.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fa-solid fa-eye"></i></div>
+                    <h3>Zero-Shot Vision</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">No training YOLO models. No labeling datasets. It recognizes anything Gemini 3 recognizes—instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fa-solid fa-microchip"></i></div>
+                    <h3>Edge + Cloud Hybrid</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">ESP32-CAM handles the hardware. Python & Gemini Flash handle the intelligence. Low cost, high IQ.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-stack" id="tech">
+        <div class="container">
+            <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; color: var(--text-muted);">Built With</p>
+            <div class="tech-icons">
+                <div class="tech-item"><i class="fab fa-python"></i><span>Python</span></div>
+                <div class="tech-item"><i class="fab fa-google"></i><span>Gemini 3 Flash</span></div>
+                <div class="tech-item"><i class="fas fa-microchip"></i><span>ESP32</span></div>
+                <div class="tech-item"><i class="fas fa-video"></i><span>OpenCV</span></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>Made for the <strong>Devpost Gemini 3 Hackathon 2026</strong></p>
+            <p style="margin-top: 10px; opacity: 0.5;">Project by Vikrant & Team</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Simulated Terminal Logic ---
+        const logsContainer = document.getElementById('terminal-logs');
+        
+        const logData = [
+            { type: 'sys', text: 'Initializing Camera Stream (192.168.1.100)... OK' },
+            { type: 'sys', text: 'Connecting to Gemini 3 Flash API... CONNECTED' },
+            { type: 'sys', text: 'Starting Control Loop...' },
+            { type: 'gemini', text: 'Reasoning: "Image contains a messy floor. I see a power cable (trip hazard) to the left and clear carpet to the right. Objective: Explore."' },
+            { type: 'rover', text: 'Command: RIGHT | Speed: 180' },
+            { type: 'sys', text: '...' },
+            { type: 'gemini', text: 'Reasoning: "Path is clear. I see a cat 3 meters away. Cats are unpredictable obstacles. Slowing down."' },
+            { type: 'rover', text: 'Command: FORWARD | Speed: 100' },
+            { type: 'sys', text: '...' },
+            { type: 'gemini', text: 'Reasoning: "Wall detected ahead. Dead end. I need to turn around."' },
+            { type: 'rover', text: 'Command: STOP' },
+            { type: 'rover', text: 'Command: LEFT | Speed: 200' }
+        ];
+
+        let index = 0;
+
+        function addLog() {
+            if (index >= logData.length) {
+                index = 0; // Loop simulation
+                logsContainer.innerHTML = '';
+            }
+
+            const entry = logData[index];
+            const div = document.createElement('div');
+            div.className = `log-entry ${entry.type}`;
+            
+            // Add Timestamp
+            const now = new Date();
+            const timeString = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+            
+            div.innerHTML = `<span class="timestamp">[${timeString}]</span> ${entry.text}`;
+            logsContainer.appendChild(div);
+            
+            // Auto Scroll
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+
+            index++;
+            
+            // Random simulated delay between logs
+            setTimeout(addLog, Math.random() * 1500 + 500);
+        }
+
+        // Start Simulation
+        setTimeout(addLog, 1000);
+
+        // --- Scroll Reveal Animation ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.feature-card').forEach((el) => {
+            el.style.opacity = 0;
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+
+    </script>
+</body>
+</html>
